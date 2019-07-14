@@ -24,40 +24,45 @@ class Database:
         self.database = sqlite3.connect(db_name)
         self.create_table()
 
-    async def store_message(self, values):
+    async def store_message(self, data):
         cursor = self.database.cursor()
-        query = "INSERT INTO messages (id, chat_id, timestamp) VALUES(?, ?, ?)"
-        cursor.execute(query, (values['id'], values['chat_id'], values['timestamp']))
+        values = (data['id'], data['chat_id'], data['timestamp'], )
+        query = 'INSERT INTO messages (id, chat_id, timestamp) VALUES(?, ?, ?)'
+        cursor.execute(query, values)
         self.database.commit()
 
     async def increment_message_rating(self, id):
         cursor = self.database.cursor()
-        query = "UPDATE messages SET rating = rating + 1 WHERE id = {}".format(id)
-        cursor.execute(query)
+        values = (id, )
+        query = 'UPDATE messages SET rating = rating + 1 WHERE id=?'
+        cursor.execute(query, values)
         self.database.commit()
 
     async def get_message_by_id(self, id):
         cursor = self.database.cursor()
-        query = "SELECT * FROM messages WHERE id = {}".format(id)
-        cursor.execute(query)
+        values = (id, )
+        query = 'SELECT * FROM messages WHERE id = ?'
+        cursor.execute(query, values)
         return cursor.fetchone()
 
     async def get_rated_messages_by_chat(self, chat_id, limit=5):
         cursor = self.database.cursor()
+        values = (chat_id, limit, )
         query = '''SELECT id FROM messages
-                        WHERE chat_id = {} and rating > 0
+                        WHERE chat_id = ? and rating > 0
                         ORDER BY rating DESC
-                        LIMIT {}'''.format(chat_id, limit)
-        cursor.execute(query)
+                        LIMIT ?'''.format(chat_id, limit)
+        cursor.execute(query, values)
         return cursor.fetchall()
 
     async def get_rated_messages_by_chat_and_time(self, chat_id, timestamp, limit=5):
         cursor = self.database.cursor()
+        values = (chat_id, timestamp, limit, )
         query = '''SELECT id FROM messages
-            WHERE chat_id = {} and timestamp >= {} and rating > 0 
+            WHERE chat_id = ? and timestamp >= ? and rating > 0 
             ORDER BY rating DESC
-            LIMIT {}'''.format(chat_id, timestamp, limit)
-        cursor.execute(query)
+            LIMIT ?'''
+        cursor.execute(query, values)
         return cursor.fetchall()
 
     def get_last_message_id(self):
