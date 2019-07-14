@@ -94,6 +94,7 @@ class Server:
         self.bot_token = self.config.get('token', 'TELEGRAM')
         self.proxy = self.config.get('proxy', 'TELEGRAM')
         self.query_url = 'https://api.telegram.org/bot{}/'.format(self.bot_token)
+        self.port = self.config.get('port', 'TELEGRAM')
 
     def set_webhook(self):
         webhook_url = 'https://{}/{}'.format(self.hostname, self.bot_token)
@@ -191,4 +192,4 @@ app.add_routes([
 ])
 
 server.set_webhook()
-web.run_app(app)
+web.run_app(app, port=server.port)
