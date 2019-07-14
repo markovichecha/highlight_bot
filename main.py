@@ -6,6 +6,7 @@ import requests
 import json
 import sqlite3
 import time
+import argparse
 
 
 class Config:
@@ -183,12 +184,18 @@ class Server:
         return web.Response(text='OK')
 
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--path')
+parser.add_argument('--port')
+
 server = Server()
-
-app = web.Application()
-app.add_routes([
-    web.post('/{bot_token}', server.handle)
-])
-
 server.set_webhook()
-web.run_app(app)
+
+if __name__ == '__main__':
+    app = web.Application()
+    app.add_routes([
+        web.post('/{bot_token}', server.handle)
+    ])
+
+    args = parser.parse_args()
+    web.run_app(app, path=args.path, port=args.port)
