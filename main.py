@@ -6,16 +6,20 @@ import requests
 import json
 import sqlite3
 import time
-
+import sys
 
 class Config:
 
     def __init__(self):
-        self.settings = configparser.ConfigParser()
-        self.settings.read('main.ini')
+        self._settings = configparser.ConfigParser()
+        self._path = sys.argv[1] if len(sys.argv) > 1 else ''
+        self._settings.read(self._path + 'main.ini')
 
     def get(self, option, section):
-        return self.settings.get(section, option) or None
+        return self._settings.get(section, option) or None
+
+    def get_path(self):
+        return self._path
 
 
 class Database:
@@ -88,7 +92,7 @@ class Server:
 
     def __init__(self):
         self.config = Config()
-        self.database = Database(self.config.get('name', 'DATABASE'))
+        self.database = Database(self.config.get_path() + self.config.get('name', 'DATABASE'))
         self.last_id = self.database.get_last_message_id()[0] or 0
         self.hostname = self.config.get('hostname', 'TELEGRAM')
         self.bot_token = self.config.get('token', 'TELEGRAM')
